@@ -1,15 +1,34 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+#if PLATFORM_ANDROID
+using UnityEngine.Android;
+#endif
 
 public class NativeGPSUI : MonoBehaviour
 {
     public Text text;
     bool locationIsReady = false;
+    bool locationGrantedAndroid = false;
+    GameObject dialog = null;
 
     private void Start() 
     {
-        #if PLATFORM_IOS
+        #if PLATFORM_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            Permission.RequestUserPermission(Permission.FineLocation);
+            dialog = new GameObject();
+        }
+        else
+        {
+            Debug.LogError("Location i ready");
+
+            locationGrantedAndroid = true;
+            locationIsReady = NativeGPSPlugin.StartLocation();
+        }
+
+        #elif PLATFORM_IOS
 
         locationIsReady = NativeGPSPlugin.StartLocation();
     
@@ -32,5 +51,30 @@ public class NativeGPSUI : MonoBehaviour
 
             text.text = sb.ToString();
         }
+    }
+
+    void OnGUI ()
+    {
+        #if PLATFORM_ANDROID
+        if (!Permission.HasUserAuthorizedPermission(Permission.FineLocation))
+        {
+            // The user denied permission to use the fineLocation.
+            // Display a message explaining why you need it with Yes/No buttons.
+            // If the user says yes then present the request again
+            // Display a dialog here.
+            dialog.AddComponent<PermissionsRationaleDialog>();
+            return;
+        }
+        else if (dialog != null)
+        {
+            if (!locationGrantedAndroid)
+            {
+                locationGrantedAndroid = true;
+                locationIsReady = NativeGPSPlugin.StartLocation();
+            }
+
+            Destroy(dialog);
+        }
+        #endif
     }
 }

@@ -6,6 +6,11 @@ public class NativeGPSPlugin : MonoBehaviour
     static NativeGPSPlugin instance = null;
     static GameObject go;
 
+#if UNITY_ANDROID
+	static AndroidJavaClass obj;
+
+#endif
+
 #region Dll imports for iOS
     [DllImport("__Internal")] private static extern void startLocation();
     [DllImport("__Internal")] private static extern double getLongitude();
@@ -27,6 +32,13 @@ public class NativeGPSPlugin : MonoBehaviour
 				go = new GameObject();
 				go.name = "NativeGPSPlugin";
 				instance = go.AddComponent<NativeGPSPlugin>();
+
+                #if UNITY_ANDROID
+
+				if(Application.platform == RuntimePlatform.Android)
+					obj = new AndroidJavaClass("com.marcinkulwicki.localetools.Main");
+
+				#endif
 			}
 		
 			return instance; 
@@ -57,6 +69,13 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             startLocation();
         }
+
+        #elif UNITY_ANDROID
+        
+        if(Application.platform == RuntimePlatform.Android)
+        {
+            obj.CallStatic("startLocation");
+        }
         
         #endif
 
@@ -74,6 +93,10 @@ public class NativeGPSPlugin : MonoBehaviour
             return getLongitude();
         }
 
+        #elif UNITY_ANDROID
+        
+            return (double) Get(NativeAndroidFunction.GET_LONGITUDE);
+
         #endif
 
         return 0;
@@ -87,6 +110,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getLatitude();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (double) Get(NativeAndroidFunction.GET_LATITUDE);
         
         #endif
 
@@ -101,6 +128,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getAccuracy();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (float) Get(NativeAndroidFunction.GET_ACCURACY);
         
         #endif
 
@@ -115,6 +146,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getAltitude();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (double) Get(NativeAndroidFunction.GET_ALTITUDE);
         
         #endif
 
@@ -129,6 +164,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getSpeed();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (float) Get(NativeAndroidFunction.GET_SPEED);
         
         #endif
 
@@ -143,6 +182,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getSpeedAccuracy();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (float) Get(NativeAndroidFunction.GET_SPEED_ACCURACY_METERS_PER_SECOND);
         
         #endif
 
@@ -157,6 +200,10 @@ public class NativeGPSPlugin : MonoBehaviour
         {
             return getVerticalAccuracyMeters();
         }
+
+        #elif UNITY_ANDROID
+        
+            return (float) Get(NativeAndroidFunction.GET_VERTICAL_ACCURACY_METERS);
         
         #endif
 
@@ -165,4 +212,58 @@ public class NativeGPSPlugin : MonoBehaviour
 
 #endregion
 
+#region Android functions
+    #if UNITY_ANDROID
+    
+    private static object Get(NativeAndroidFunction functionName)
+    {
+        Instance.Awake();
+
+        if(!Input.location.isEnabledByUser)
+        {
+            return 0;
+        }
+        
+        if(Application.platform == RuntimePlatform.Android)
+        {
+            switch(functionName)
+            {
+                case NativeAndroidFunction.GET_LONGITUDE:
+                    return obj.CallStatic<double>("getLongitude");
+
+                case NativeAndroidFunction.GET_LATITUDE:
+                    return obj.CallStatic<double>("getLatitude");
+                
+                case NativeAndroidFunction.GET_ACCURACY:
+                    return obj.CallStatic<float>("getAccuracy");
+
+                case NativeAndroidFunction.GET_ALTITUDE:
+                    return obj.CallStatic<double>("getAltitude");
+
+                case NativeAndroidFunction.GET_SPEED:
+                    return obj.CallStatic<float>("getSpeed");
+
+                case NativeAndroidFunction.GET_SPEED_ACCURACY_METERS_PER_SECOND:
+                    return obj.CallStatic<float>("getSpeedAccuracyMetersPerSecond");
+
+                case NativeAndroidFunction.GET_VERTICAL_ACCURACY_METERS:
+                    return obj.CallStatic<float>("getVerticalAccuracyMeters");
+            }
+        }
+
+        return null;
+    }
+
+    private enum NativeAndroidFunction
+    {
+        GET_LONGITUDE,
+        GET_LATITUDE,
+        GET_ACCURACY,
+        GET_ALTITUDE,
+        GET_SPEED,
+        GET_SPEED_ACCURACY_METERS_PER_SECOND,
+        GET_VERTICAL_ACCURACY_METERS,
+    }
+    #endif
+#endregion
 }
