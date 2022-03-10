@@ -22,8 +22,6 @@ public class NativeGPSUI : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Location i ready");
-
             locationGrantedAndroid = true;
             locationIsReady = NativeGPSPlugin.StartLocation();
         }
