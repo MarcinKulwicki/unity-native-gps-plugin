@@ -147,6 +147,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
     Android: com.marcinkulwicki.NativeGPSPlugin
+    Standalone: com.marcinkulwicki.NativeGPSPlugin
     iPhone: com.marcinkulwicki.NativeGPSPlugin
   buildNumber:
     Standalone: 0
