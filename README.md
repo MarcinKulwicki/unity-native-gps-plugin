@@ -2,3 +2,5 @@
 Unity project with native GPS plugin for Android and iOS devices
 
 You can find instruction how to make plugin like this in https://kulwik.medium.com/unity-native-gps-plugin-ios-and-android-11469d86190c
+
+Or as a Unity package https://assetstore.unity.com/packages/slug/216027
