@@ -12,6 +12,7 @@ public class NativeGPSPlugin : MonoBehaviour
 #endif
 
 #region Dll imports for iOS
+    #if UNITY_IOS
     [DllImport("__Internal")] private static extern void startLocation();
     [DllImport("__Internal")] private static extern double getLongitude();
     [DllImport("__Internal")] private static extern double getLatitude();
@@ -20,6 +21,7 @@ public class NativeGPSPlugin : MonoBehaviour
     [DllImport("__Internal")] private static extern float getVerticalAccuracyMeters();
     [DllImport("__Internal")] private static extern float getSpeed();
     [DllImport("__Internal")] private static extern float getSpeedAccuracy();
+    #endif
 #endregion
 
 #region Init Singleton
